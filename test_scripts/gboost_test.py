@@ -1,17 +1,17 @@
 import os
 import sys
 import joblib
-import numpy as np
 import pandas as pd
-from sklearn import svm
-from sklearn.metrics import make_scorer
+import numpy as np
+import xgboost as xgb
 from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
 
 
-class SVM:
+class GBOOST:
     @staticmethod
     # define base model
-    def svm_tuning(X:pd.Dataframe, y:pd.DataFrame) -> pd.DataFrame:
+    def gboost_tuning(X:pd.Dataframe, y:pd.DataFrame) -> pd.DataFrame:
         
         # gridsearch parameter declaration
         param = {   'kernel': ('linear', 'rbf', 'poly'),
@@ -21,14 +21,11 @@ class SVM:
                     'gamma': ['auto', 0.1],
         }
 
-        # model declaration           
-        svr = svm.SVR() 
-
         # scorer
         scorer = make_scorer(mean_squared_error, greater_is_better=False)
         
         # hyper-parameter tuning
-        grid_search = GridSearchCV( estimator = svr,
+        grid_search = GridSearchCV( estimator = xgb(),
                                     param_grid = param, 
                                     cv = 3, 
                                     n_jobs = -1, 
@@ -37,8 +34,8 @@ class SVM:
                                     )
 
         # Fit optimised base_models
-        svr_model = grid_search.fit(X, y)
+        xgb_model = grid_search.fit(X, y)
 
         # Save model as Pickle
-        joblib.dump(svr_model, "svr_model.pkl")
-        return svr_model
+        joblib.dump(xgb_model, "xgb_model.pkl")
+        return xgb_model

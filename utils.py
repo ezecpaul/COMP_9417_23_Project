@@ -4,13 +4,13 @@ from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
-class Utilities:
+class utils:
     '''
     Define series of help functions
 
     ''' 
     @staticmethod
-    def average_RMSE(y:numpy.ndarray, y_hat: numpy.ndarray): # Define column-wise average RMSE
+    def ave_RMSE(y:numpy.ndarray, y_hat: numpy.ndarray): # Define column-wise average RMSE
         column_len = y.shape[1] 
         errors = np.zeros(column_len)
         for i in range(column_len):
@@ -59,5 +59,5 @@ class Utilities:
         return pca_fin
 
         @staticmethod
-        def VIF(X : pd.DataFrame) -> pd.DataFrame:
+        def vif(X : pd.DataFrame) -> pd.DataFrame:
             pass
