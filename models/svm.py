@@ -42,3 +42,4 @@ class SVM:
         # Save model as Pickle
         joblib.dump(svr_model, "svr_model.pkl")
         return svr_model
+        
