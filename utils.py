@@ -4,6 +4,8 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import StandardScaler
 import joblib
+sys.path.append('.')
+ROOT_DIR = os.path.dirname(os.path.abspath('COMP_9417_23_Project')) # project Directory
 
 # Define some utility functions in util class
 class util:
