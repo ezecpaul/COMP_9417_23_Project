@@ -128,10 +128,20 @@ class util:
         y_test.to_csv(os.path.join(processed_data_dir,'y_test.csv'), index=False)
         # joblib.dump(X_train, os.path.join(processed_data_dir, 'X_train.pkl')) #save to pickle
 
-        # scale and save tranformed data
+        # 1st: scale and save tranformed data: util.standardize(X_train, X_test)
         X_train_scaled, X_test_scaled = util.standardize(X_train, X_test)
+
         X_train_scaled.to_csv(os.path.join(processed_data_dir,'X_train_scaled.csv'), index=False)
         X_test_scaled.to_csv(os.path.join(processed_data_dir,'X_test_scaled.csv'), index=False)
+
+        # 2nd: PCA- Feature Reduction and Selection
+
+        # 3nd: Pearson Correlation for Feature Reduction and Selection
+
+        # 4th: Spearman Correlation for Feature Reduction and Selection
+
+        # 5th VIF Feature Reduction and Selection
+    
 
         print('\nSix(6) Dataframes (X_train, X_test, X_train_scaled, X_test_scaled, y_train, y_test), returned.')
         return X_train, X_test, X_train_scaled, X_test_scaled, y_train, y_test

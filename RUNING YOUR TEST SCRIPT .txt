@@ -1,0 +1,24 @@
+>>>>>>> RUNING YOUR TEST SCRIPT <<<<<<<
+
+STEPS:
+
+# step 1: import classes
+
+from utils import util
+from models import [your grid-search/model tuning class]  # use this when tuning is not done yet.
+ 
+# step 2: Read in Files form "data_pkl"
+# Examples: X_train, X_test, X_train_scaled, X_test_scaled, y_train, y_test
+ 
+#Step 3: Read best parameter file "model_pkl\svr_metrics\svr_best_metric.csv"
+# example for SVR: best params = {'C': 10000.0, 'coef0':0.01, 'degree': 3, 'gamma': 'auto', 'kernel': 'poly'}
+ 
+#Step 4: Use best parameter to define and build model
+# Example for SVR: model = svm.SVR(C= 10000.0, coef0=0.01, degree= 3, gamma= 'auto', kernel= 'poly')
+ 
+# step 5: Fit model to different Datasets created in data_pkl ( VIF_dataset, Raw_dataset, PCA dataset, etc)
+# Example: pred = util.fit_predict(model, X_train, y_train, X_test)
+ 
+# Step 6: Plot graghs and compare metrics and output results
+# Examples 1:  RMSEs, Ave_RMSE = util.average_RMSE(y_test, pred)
+# Example 2: print(f'\nColumns [Ca, P, pH, SOC , Sand] RMSEs: \n {RMSEs} \n Average RMSE: {Ave_RMSE}')
