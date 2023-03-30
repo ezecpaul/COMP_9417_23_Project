@@ -12,7 +12,6 @@ saved_model_dir = os.path.join(ROOT_DIR, 'model_pkl')
 model_file = os.path.join(saved_model_dir, 'svr_model.pkl')
 svr_metrics_dir =os.path.join(model_file, 'svr_metrics')
 
-
 class SVR_Model:
     @staticmethod
     # define base model
@@ -65,27 +64,4 @@ class SVR_Model:
 
         print(f'\n Hyperparameter tuning completed with metrics saved in {svr_metrics_dir} \n  \
                 Best parameters:\n {svr_search_run.best_params_}')
-        return 
-
-from utils import util
-
-# Runing snipet #1
-# process data from train dataset 'training.csv'
-X_train, X_test, X_train_scaled, X_test_scaled, y_train, y_test = util.process_data('training.csv')
-
-# best params = {'C': 10000.0, 'coef0':0.01, 'degree': 3, 'gamma': 'auto', 'kernel': 'poly'}
-model = svm.SVR(C= 10000.0, 
-                coef0=0.01, 
-                degree= 3, 
-                gamma= 'auto', 
-                kernel= 'poly')
-
-# predict using best model
-pred = util.fit_predict(model, 
-                      X_train, 
-                      y_train, 
-                      X_test)
-
-# Compute RMSE for each response variable and column-wise Average-RMSE
-RMSEs, Ave_RMSE = util.average_RMSE(y_test, pred)
-print(f'\nColumns [Ca, P, pH, SOC , Sand] RMSEs: \n {RMSEs} \n Average RMSE: {Ave_RMSE}')
+        return
