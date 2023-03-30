@@ -14,6 +14,7 @@ model_file = os.path.join(saved_model_dir, 'svr_model.pkl')
 svr_metrics_dir =os.path.join(model_file, 'svr_metrics')                        
 
 from utils import util
+from models import SVR_Model # use this when tuning is not done yet.
 
 # step 1:
 # Read X_train, X_test, X_train_scaled, X_test_scaled, y_train, y_test
