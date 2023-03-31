@@ -21,7 +21,7 @@ class util:
     # Compute Column-wise Average RMSE 
     @staticmethod
     def average_RMSE(y_true: pd.DataFrame, y_pred):
-        columns = y_pred.columns.values
+        columns = y_true.columns.values
         y_true = np.array(y_true)
         y_pred = np.array(y_pred)
 
