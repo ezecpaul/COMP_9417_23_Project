@@ -61,8 +61,6 @@ class SVR_Model:
         pd.DataFrame(svr_search_run.best_params_).to_csv(os.path.join(svr_metrics_dir,'svr_params.csv'), index=False)
         pd.DataFrame(svr_search_run.best_score_).to_csv(os.path.join(svr_metrics_dir,'svr_score.csv'), index=False)
 
-        joblib.dump(svr_search_run.best_params_, os.path.join(processed_data_dir, 'X_train.pkl')) #save to pickle
-
         print(f'\n Hyperparameter tuning completed with metrics saved in {svr_metrics_dir} \n  \
                 Best parameters:\n {svr_search_run.best_params_}')
         return
