@@ -8,59 +8,45 @@ from sklearn.metrics import mean_squared_error, make_scorer
 import joblib
 sys.path.append('.')
 ROOT_DIR = os.path.dirname(os.path.abspath('COMP_9417_23_Project')) # project Directory
-saved_model_dir = os.path.join(ROOT_DIR, 'model_pkl')
-# model_file = os.path.join(saved_model_dir, 'svr_model.pkl')
-svr_metrics_dir = os.path.join(saved_model_dir, 'svr_metrics')
+saved_searchCV_dir = os.path.join(ROOT_DIR, 'svr_searchCV_pkl')
 
-class SVR_Model:
+class SVR_Search:
     @staticmethod
     # define base model
-    def svm_tuning(X:pd.DataFrame, y:pd.DataFrame):
+    def tune(X:pd.DataFrame, y:pd.DataFrame, file_name: str =None):
         
-        # Load and return saved model if exist
-        if os.path.exists(os.path.join(svr_metrics_dir, 'svr_params.csv')):
-            try:
-                model_best_param = pd.read_csv(os.path.join(svr_metrics_dir, 'svr_params.csv'))
-                print(f'\nHere is best param for svm.SVR model \n {model_best_param}')                
-                return
-            except:
-                print(f'\nError loading existing best parameter file')
-                sys.exit(0)       
+        # Load and return saved searchCV files
+        if file_name:
+            if os.path.exists(file_name):
+                file = os.path.join(saved_searchCV_dir, file_name)                
+                return joblib.load(file)  
         
-        # else: Do a grid-search and build new model
+        # else: Do a grid-search 
         print('\nSVR Tuning in progress... ')
-        X = np.array(X)
-        y = np.array(y)
-        y = y[:,1] # build model will only one response variable (1st Response Variable)
+        
+        label = y.columns[0]
+        X= np.array(X)
+        y= np.array(y).ravel()
         
         # grid-search parameters range
-        param = {   'kernel': ('linear', 'rbf', 'poly'),
-                    'C':[1000.0, 10000.0, 15000.0],
-                    'degree': [2, 3],
-                    'coef0': [0.01, 0.05, 0.1]
-        }
+        params = { 'kernel': ('linear', 'rbf', 'poly'),
+                  'C':[1000.0, 10000.0, 15000.0],
+                  'degree': [2, 3],
+                  'coef0': [0.01, 0.05, 0.1]
+                  }
 
         # scorer
         scorer = make_scorer(mean_squared_error, greater_is_better=False)       
 
-        # define gridserach
-        grid_search = GridSearchCV( estimator = svm.SVR( gamma= 'auto'), # base model declaration
-                                    param_grid = param, 
-                                    cv = 3, 
-                                    n_jobs = -1, 
-                                    verbose = 2,
-                                    scoring=scorer
-        )
+        # initiate gridserach
+        gs = GridSearchCV(estimator= svm.SVR(gamma= 'auto'), # base model
+                            param_grid=params, 
+                            cv=3, 
+                            n_jobs=-1, 
+                            verbose=1,
+                            scoring=scorer )
 
-        # tune model with grid_search
-        svr_search_run = grid_search.fit(X, y)
-
-        # save csv of grid_search results
-        pd.DataFrame(svr_search_run.cv_results_).to_csv(os.path.join(svr_metrics_dir,'svr_cv_result.csv'), index=False)
-        pd.DataFrame(svr_search_run.best_estimator_).to_csv(os.path.join(svr_metrics_dir,'svr_estimator.csv'), index=False)
-        pd.DataFrame(svr_search_run.best_params_).to_csv(os.path.join(svr_metrics_dir,'svr_params.csv'), index=False)
-        pd.DataFrame(svr_search_run.best_score_).to_csv(os.path.join(svr_metrics_dir,'svr_score.csv'), index=False)
-
-        print(f'\n Hyperparameter tuning completed with metrics saved in {svr_metrics_dir} \n  \
-                Best parameters:\n {svr_search_run.best_params_}')
-        return
+        gs.fit(X, y)
+        # Save each of searchCV as Pickle
+        joblib.dump(gs, os.path.join(saved_searchCV_dir, label+'.pkl'))
+        print(f'Completed and Saved as {label}.pkl in {saved_searchCV_dir}')
