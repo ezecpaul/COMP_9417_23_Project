@@ -22,9 +22,6 @@ class FS:
 
         print(f'\nRuning Pearson correlation for {n_features} important feartures for each target...\n')
 
-        # concat X, y - Because of the relationship amongst response variables
-        df = pd.concat([X, y], axis=1)
-
         # timer starts
         tic = time.perf_counter()
 
@@ -32,7 +29,12 @@ class FS:
         top_features_list = {} 
 
         for i in range(y.columns.size):
+
             label = y.columns[i]
+
+            # concat X, y - Because of the relationship amongst response variables
+            df = pd.concat([X, y[label]], axis=1)
+
             # Get correlations btw predictors and each response Variable
             corr_matrix = df.corr(method='pearson')[label].abs().sort_values(ascending=False)
             top_features = corr_matrix.iloc[:n_features + 1]  # plus 1 for target variable
@@ -56,9 +58,6 @@ class FS:
         """
         print(f'\nRuning Pearson correlation for important features with correlations > {threshold} ...\n')
 
-        # concat X, y - Because of the relationship amongst response variables
-        df = pd.concat([X, y], axis=1)
-
         # timer starts
         tic = time.perf_counter()
 
@@ -66,8 +65,11 @@ class FS:
         top_features_list = {} 
 
         for i in range(y.columns.size):
-            # add each target column for correlation matrix
             label = y.columns[i]
+            
+            # concat X, y - Because of the relationship amongst response variables
+            df = pd.concat([X, y[label]], axis=1)
+
             corr_matrix = df.corr(method='pearson')[label].abs().sort_values(ascending=False)
             top_features = pd.Series(corr_matrix).where(lambda x: x >= threshold).dropna()
             top_features.drop(label, inplace=True)
@@ -94,9 +96,7 @@ class FS:
 
         print(f'\nRuning Spearman correlation for {n_features} important feartures for each target...\n')
 
-        # concat X, y - Because of the relationship among response variables
-        df = pd.concat([X, y], axis=1)
-
+       
         # timer starts
         tic = time.perf_counter()
 
@@ -104,7 +104,12 @@ class FS:
         top_features_list = {} 
 
         for i in range(y.columns.size):
+
             label = y.columns[i]
+            
+            # concat X, y - Because of the relationship amongst response variables
+            df = pd.concat([X, y[label]], axis=1)
+
             # Get correlations btw predictors and each response Variable
             corr_matrix = df.corr(method='spearman')[label].abs().sort_values(ascending=False)
             top_features = corr_matrix.iloc[:n_features + 1]  # plus 1 for target variable
@@ -130,9 +135,6 @@ class FS:
 
         print(f'\nRuning Pearson correlation for important features above {threshold} threshold...\n')
 
-        # concat X, y - Because of the relationship amongst response variables
-        df = pd.concat([X, y], axis=1)
-
         # timer starts
         tic = time.perf_counter()
 
@@ -141,8 +143,11 @@ class FS:
 
         for i in range(y.columns.size):
 
-            # add each target column for correlation matrix
             label = y.columns[i]
+            
+            # concat X, y - Because of the relationship amongst response variables
+            df = pd.concat([X, y[label]], axis=1)
+
             corr_matrix = df.corr(method='spearman')[label].abs().sort_values(ascending=False)
             top_features = pd.Series(corr_matrix).where(lambda x: x >= threshold).dropna()
             top_features.drop(label, inplace=True)
