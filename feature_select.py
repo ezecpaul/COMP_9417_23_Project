@@ -56,7 +56,7 @@ class FS:
         Cohen's: >0.5 = is strong, >0.3 = is moderate, >0.1 = is weak
         Recommended threshold: >0.1. Notable, the 'P' response variable has shown a lot of weak correlation to predictors)
         """
-        print(f'\nRuning Pearson correlation for important features with correlations > {threshold} ...\n')
+        print(f'\nRuning Pearson correlation for important features above {threshold} corr coef threshold...\n')
 
         # timer starts
         tic = time.perf_counter()
@@ -133,7 +133,7 @@ class FS:
         Recommended threshold: >0.1. Notable, the 'P' response variable has shown a lot of weak correlation to predictors)
         """
 
-        print(f'\nRuning Pearson correlation for important features above {threshold} threshold...\n')
+        print(f'\nRuning Spearman correlation for important features above {threshold} corr coef threshold...\n')
 
         # timer starts
         tic = time.perf_counter()

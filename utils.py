@@ -18,16 +18,11 @@ saved_model_dir = os.path.join(ROOT_DIR, 'model_pkl')
 # Define some utility functions in util class
 class util:
     '''
-    Define series of help functions
-
+    A collection of helper functions
     ''' 
     # Compute Column-wise Average RMSE 
     @staticmethod
-    def average_RMSE(y_true: pd.DataFrame, y_pred):
-        columns = y_true.columns.values
-        y_true = np.array(y_true)
-        y_pred = np.array(y_pred)
-
+    def MCRMSE(y_true: ndarray, y_pred: ndarray):
         column_len = y_true.shape[1] 
         errors = np.zeros(column_len)
         for i in range(column_len):
@@ -76,35 +71,11 @@ class util:
         output.to_csv(os.path.join(processed_data_dir, 'predictions.csv'), index = False)
         print(f'prediction file saved to {processed_data_dir}')
 
-    # Perform model fit
-    @staticmethod
-    def model_fit(model, X_train: pd.DataFrame, y_train: pd.DataFrame):
-        columns = y_train.columns.values
-        X_train = np.array(X_train)
-        y_train = np.array(y_train)
-        
-        models =[]
-        n_rows = y_train.shape[0]
-        n_columns = y_train.shape[1]     
-        for i in range(n_columns):            
-            model.fit(X_train, y_train[:,i])
-            models.append(model)
-        return models
-
-    # Model predict    
-    @staticmethod
-    def model_predict(models, X_test: pd.DataFrame):
-        X_test = np.array(X_test)
-        y_pred = np.array((X_test.shape[0], len(models)))
-        for i in range(len(models)):
-           y_pred[:,i] = models[i].predict(X_test).astype(float)
-        return y_pred
-
     # Process Dataset into Train and Test sets   
     @staticmethod
     def prepare_data(train_data: pd.DataFrame, test_split_ratio = 0.2):
                                   
-        print('Data preparation in progress...\n')
+        print('Data preparation in progress...')
 
         labels = train_data[['Ca','P','pH','SOC','Sand']] # y/labels
 
@@ -133,7 +104,7 @@ class util:
         # y_train.to_csv(os.path.join(processed_data_dir,'y_train.csv'), index=False)
         # y_test.to_csv(os.path.join(processed_data_dir,'y_test.csv'), index=False)     
         # print(f'Completed! - Files saved in {processed_data_dir}')
-        
+
         print('Completed!')
         return X_train, X_test, y_train, y_test
 
