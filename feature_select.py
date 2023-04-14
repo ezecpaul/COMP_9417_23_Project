@@ -1,10 +1,12 @@
 import time
+import os
 import sys
 import pandas as pd
 import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import SelectKBest, f_classif, RFE
 from sklearn.linear_model import Lasso
+import joblib
 
 class FS:
 
@@ -19,6 +21,10 @@ class FS:
             print(f'\n{n_features} is greater {len(X.shape[1])} features')
             sys.exit(0)
             return
+        
+        if os.path.exists("pearson_"+str(n_features)+".pkl"):
+            top_features_list = joblib.load("pearson_"+str(n_features)+".pkl")
+            return top_features_list
 
         print(f'\nRuning Pearson correlation for {n_features} important feartures for each target...\n')
 
@@ -41,6 +47,7 @@ class FS:
             top_features.drop(label, inplace=True)
             top_features_list[label] = top_features
         
+        joblib.dump(top_features_list, "pearson_"+str(n_features)+".pkl")
         # timer ends
         toc = time.perf_counter()
         print(f"Performance: {toc - tic:0.2f} seconds")
@@ -57,6 +64,10 @@ class FS:
         Recommended threshold: >0.1. Notable, the 'P' response variable has shown a lot of weak correlation to predictors)
         """
         print(f'\nRuning Pearson correlation for important features above {threshold} corr coef threshold...\n')
+
+        if os.path.exists("pearson_"+str(threshold)+".pkl"):
+            top_features_list = joblib.load("pearson_"+str(threshold)+".pkl")
+            return top_features_list
 
         # timer starts
         tic = time.perf_counter()
@@ -77,6 +88,7 @@ class FS:
             
             print(f"{top_features.size} features selected for target: {label}")
 
+        joblib.dump(top_features_list, "pearson_"+str(threshold)+".pkl")
         # timer ends
         toc = time.perf_counter()
         print(f"Performance: {toc - tic:0.2f} seconds")
@@ -93,6 +105,11 @@ class FS:
             print(f'\n{n_features} is greater {len(X.shape[1])} features')
             sys.exit(0)
             return
+        
+        if os.path.exists("spearman_"+str(n_features)+".pkl"):
+            top_features_list = joblib.load("spearman_"+str(n_features)+".pkl")
+            return top_features_list
+        
 
         print(f'\nRuning Spearman correlation for {n_features} important feartures for each target...\n')
 
@@ -116,6 +133,7 @@ class FS:
             top_features.drop(label, inplace=True)
             top_features_list[label] = top_features
         
+        joblib.dump(top_features_list, "spearman_"+str(n_features)+".pkl")
         # timer ends
         toc = time.perf_counter()
         print(f"Performance: {toc - tic:0.2f} seconds")
@@ -132,6 +150,9 @@ class FS:
         Cohen's: >0.5 = is strong, >0.3 = is moderate, >0.1 = is weak
         Recommended threshold: >0.1. Notable, the 'P' response variable has shown a lot of weak correlation to predictors)
         """
+        if os.path.exists("spearman_"+str(threshold)+".pkl"):
+            top_features_list = joblib.load("spearman_"+str(threshold)+".pkl")
+            return top_features_list
 
         print(f'\nRuning Spearman correlation for important features above {threshold} corr coef threshold...\n')
 
@@ -155,6 +176,7 @@ class FS:
             
             print(f"{top_features.size} features selected for target: {label}")
 
+        joblib.dump(top_features_list, "spearman_"+str(threshold)+".pkl")
         # timer ends
         toc = time.perf_counter()
         print(f"Performance: {toc - tic:0.2f} seconds")

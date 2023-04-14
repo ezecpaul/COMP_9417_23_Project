@@ -22,7 +22,7 @@ class util:
     ''' 
     # Compute Column-wise Average RMSE 
     @staticmethod
-    def MCRMSE(y_true: ndarray, y_pred: ndarray):
+    def MCRMSE(y_true, y_pred):
         column_len = y_true.shape[1] 
         errors = np.zeros(column_len)
         for i in range(column_len):
@@ -69,7 +69,7 @@ class util:
         output['SOC'] = pred[:,3]
         output['Sand'] = pred[:,4]
         output.to_csv(os.path.join(processed_data_dir, 'predictions.csv'), index = False)
-        print(f'prediction file saved to {processed_data_dir}')
+        print(f'prediction file "predictions.csv" is saved in {processed_data_dir}')
 
     # Process Dataset into Train and Test sets   
     @staticmethod

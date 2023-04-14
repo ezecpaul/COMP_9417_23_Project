@@ -1,15 +1,16 @@
 import os
 import sys
-import joblib
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.model_selection import GridSearchCV
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, make_scorer
 import joblib
 sys.path.append('.')
 ROOT_DIR = os.path.dirname(os.path.abspath('COMP_9417_23_Project')) # project Directory
 saved_searchCV_dir = os.path.join(ROOT_DIR, 'gbr_searchCV_pkl')
+data_dir = os.path.join(ROOT_DIR, 'data')
 
 class GBR_Search:
     @staticmethod
@@ -47,9 +48,118 @@ class GBR_Search:
         print(f'Completed and Saved as {label}.pkl in {saved_searchCV_dir}')
 
 # Running Grid-Search using all Predictors
-from utils import util
-data_file = 'training.csv'
-X, _, y, _ = util.process_data(data_file)
-for column in list(y.columns):
-    y = y[[column]]
-    GBR_Search.tune(X, y)
+if __name__ == "__main__":
+
+    # Read in train Dataset 
+    file = os.path.join(data_dir, 'training.csv')
+    df =  pd.read_csv(file)
+
+    #### 1: Data Cleaning and Normarlization
+    
+    #import utility/helper function class
+    from utils import util
+
+    # clean data and drop or replace outliers- set drop_outlers to True to drop or False (default) to replace them
+    data = util.clean_outliers(df, drop_outliers = True )
+
+    # set test_split_ratio =0.0 ( X_test and y_test becomes None) when preparing for Final Submission Otherwise set to (0.1 or 0.2): default-0.2
+    X_train, X_test, y_train, y_test = util.prepare_data(data, test_split_ratio=0.2)
+
+
+    # 2: Feature Reduction/Selection
+
+    # >>> 2.1 PCA <<<
+    # import Feature Transformation class FS from file feature_select.py
+    from feature_select import FS
+    pca, top_features = FS.pca(X_train, explain_threshold=0.99)
+
+    # transform the pca tranform X_train and X_test in ndarry pca versions
+    X_train_pca = pca.transform(X_train)
+    X_test_pca = pca.transform(X_test)
+
+    #>>> 2.2 Correlation Analysis <<<
+    # get filtered pearson and spearman corr feature sets for all response variable with >= 0.1 corr coef
+    # pearson = FS.pearson_corr_filtered(X_train, y_train, 0.1)
+    spearman = FS.spearman_corr_filtered(X_train, y_train, 0.1)
+
+    # 3: Modeling
+
+    # 3.1 Hyperparameter Tuning
+    # Grid search completed on with all feature space used and the pickle files imported
+    # import pickle files of Grid-search and keep in a list
+    gbr_dir = os.path.join(ROOT_DIR, 'gbr_searchCV_pkl') # directory where GridsearchCV files are stored
+    files = ['Ca.pkl', 'P.pkl', 'pH.pkl', 'Sand.pkl', 'Soc.pkl']
+    searchCVs = list()
+    for i in range(5):
+        cv_file = joblib.load(os.path.join(gbr_dir, files[i]))
+        searchCVs.append(cv_file)
+
+    # 3.2 Models: Best parameters applied to build models + Model fit
+    
+    ## Choose  data set to fit model on
+    print('What data to fit model on ')
+    pring('Enter: 1: Original Feature Sets')
+    pring('Enter: 2: PCA Reduced Feature Sets')
+    pring('Enter: 3: Spearmans Corr Reduced Feature Sets')
+    ans = input('Enter 1, 2, or 3')
+    try:
+        if ans not in (1,2,3):
+            print('Wrong value Entered')
+            ans = input('Enter 1, 2, or 3')
+    except:
+        print('ValueErr')
+        sys.exit(1)
+
+    if ans==1:
+    # **On Original Data**
+        labels = list(y_train.columns)
+        models =list()
+        y_hat = np.zeros(y_train.shape)
+        y_pred = np.zeros(y_test.shape)
+        for i in range(5):
+            X, y = np.array(X_train), np.array(y_train[labels[i]])
+            model = GradientBoostingRegressor(**searchCVs[i].best_params_).fit(X, y)
+            y_hat[:, i] = model.predict(X)
+            y_pred[:, i] = model.predict(X_test)
+            models.append(model)
+    
+        # Report train and test errors
+        train_errors, mcrmse_train = util.MCRMSE(np.array(y_train), y_hat )
+        test_errors, mcrmse_test = util.MCRMSE(np.array(y_test), y_pred )
+        print(f'Train errors:{train_errors} | Train MCRMSE:{mcrmse_train}')
+        print(f'Test errors: {test_errors} | Test MCRMSE: {mcrmse_test}')
+            
+    elif ans ==2:
+        # **PCA transformed Data**
+        y_hat2 = np.zeros(y_train.shape)
+        y_pred2 = np.zeros(y_test.shape)
+        for i in range(5):
+            X, y = np.array(X_train_pca), np.array(y_train[labels[i]])
+            model = GradientBoostingRegressor(**searchCVs[i].best_params_).fit(X, y)
+            y_hat2[:, i] = model.predict(X)
+            y_pred2[:, i] = model.predict(X_test_pca)
+
+        # train and test errors
+        train_errors, mcrmse_train = util.MCRMSE(np.array(y_train), y_hat2 )
+        test_errors, mcrmse_test = util.MCRMSE(np.array(y_test), y_pred2 )
+        print(f'Train errors:{train_errors} | Train MCRMSE:{mcrmse_train}')
+        print(f'Test errors: {test_errors} | Test MCRMSE: {mcrmse_test}')
+    
+    elif ans == 3:
+        y_hat4 = np.zeros(y_train.shape)
+        y_pred4 = np.zeros(y_test.shape)
+
+        for i, k in enumerate(pearson.keys()):
+            feature_list = list(spearman[k].index)
+            X, y = X_train[feature_list], np.array(y_train[labels[i]])
+            X_ = X_test[feature_list]
+            model = GradientBoostingRegressor(**searchCVs[i].best_params_).fit(X, y)
+            y_hat4[:, i] = model.predict(X)
+            y_pred4[:, i] = model.predict(X_)
+
+        # train and test errors
+        train_errors, mcrmse_train = util.MCRMSE(np.array(y_train), y_hat4 )
+        test_errors, mcrmse_test = util.MCRMSE(np.array(y_test), y_pred4 )
+        print(f'Train errors:{train_errors} | Train MCRMSE:{mcrmse_train}')
+        print(f'Test errors: {test_errors} | Test MCRMSE: {mcrmse_test}')
+    
